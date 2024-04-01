@@ -24,7 +24,7 @@ const Explore = () => {
   //console.log("query search", searchdPosts);
 
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
-
+  //console.log(posts);
   //
   useEffect(() => {
     if (inView && !searchValue) fetchNextPage();

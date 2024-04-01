@@ -1,7 +1,13 @@
 import { ID, Query } from "appwrite";
 
 import { appwriteConfig, account, databases, avatars, storage } from "./config";
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+import {
+  INewFollower,
+  INewPost,
+  INewUser,
+  IUpdatePost,
+  IUpdateUser,
+} from "@/types";
 
 // ============================================================
 // AUTH
@@ -106,6 +112,15 @@ export async function signOutAccount() {
     const session = await account.deleteSession("current");
 
     return session;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function deleteFile(imageId: string) {
+  if (!imageId) return;
+  try {
+    await storage.deleteFile(appwriteConfig.storageId, imageId);
   } catch (error) {
     console.log(error);
   }
@@ -346,16 +361,18 @@ export async function deletePost(postId: string, imageId: string) {
 
 export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
   const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
+
   if (pageParam) {
-    // this help skip the old page
     queries.push(Query.cursorAfter(pageParam.toString()));
   }
+
   try {
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
       queries
     );
+
     if (!posts) throw Error;
 
     return posts;
@@ -374,6 +391,175 @@ export async function searchPosts(searchTerm: string) {
     if (!posts) throw Error;
     //console.log("Now im am Hare ", searchTerm, ":", posts);
     return posts.documents;
+  } catch (error) {
+    console.log(error);
+  }
+}
+//  ata use na kora o ami user ar data taka data nita pari
+export async function getSavedPosts() {
+  try {
+    const currentAccount = await getCurrentUser();
+    //console.log("Current Account", currentAccount);
+    if (!currentAccount) return;
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      [Query.equal("user", currentAccount?.$id)]
+    );
+    //console.log("No on api", posts.documents);
+    if (!posts) throw Error;
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getAllUsers({ pageParam }: { pageParam: number }) {
+  const queries: any[] = [Query.limit(20)];
+  if (pageParam) {
+    queries.push(Query.cursorAfter(pageParam.toString()));
+  }
+  try {
+    const allUser = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+    if (!allUser) throw Error;
+    return allUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function searchUser(searchTerm: string) {
+  try {
+    const searchdUser = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.search("username", searchTerm)]
+    );
+    if (!searchdUser) throw Error;
+    return searchdUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getUserByID(userID: string) {
+  try {
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userID
+    );
+
+    if (!user) throw Error;
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function follow({ followedBy, follower }: INewFollower) {
+  try {
+    const newFollow = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followerCollectionId,
+      ID.unique(),
+      {
+        followedBy,
+        follower,
+      }
+    );
+    if (!newFollow) throw Error;
+    console.log("This is new folower", newFollow);
+    return newFollow;
+  } catch (error) {
+    console.log(error);
+  }
+}
+export async function getAllUserFollowers() {
+  try {
+    const follower = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followerCollectionId
+    );
+    console.log("this is all followers", follower);
+    return follower;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function unFollow(id: string) {
+  try {
+    const res = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followerCollectionId,
+      id
+    );
+    if (!res) {
+      console.log("Sothing get wrong");
+    }
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateUser(user: IUpdateUser) {
+  const hasFileToUpdate = user.file.length > 0;
+  try {
+    let image = {
+      imageUrl: user.imageUrl,
+      imageId: user.imageId,
+    };
+
+    if (hasFileToUpdate) {
+      // Upload new file to appwrite storage
+      const uploadedFile = await uploadFile(user.file[0]);
+      if (!uploadedFile) throw Error;
+
+      // Get new file url
+      const fileUrl = getFilePreview(uploadedFile.$id);
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw Error;
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+    //  Update user
+    const updatedUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      user.userId,
+      {
+        name: user.name,
+        bio: user.bio,
+        imageUrl: image.imageUrl,
+        imageId: image.imageId,
+      }
+    );
+
+    // Failed to update
+    if (!updatedUser) {
+      // Delete new file that has been recently uploaded
+      if (hasFileToUpdate) {
+        await deleteFile(image.imageId);
+      }
+      // If no new file uploaded, just throw error
+      throw Error;
+    }
+
+    // Safely delete old file after successful update
+    if (user.imageId && hasFileToUpdate) {
+      await deleteFile(user.imageId);
+    }
+
+    return updatedUser;
   } catch (error) {
     console.log(error);
   }

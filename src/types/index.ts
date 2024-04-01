@@ -56,3 +56,8 @@ export type INewUser = {
   username: string;
   password: string;
 };
+
+export type INewFollower = {
+  follower: string;
+  followedBy: string;
+};

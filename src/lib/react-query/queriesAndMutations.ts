@@ -9,20 +9,27 @@ import {
   createUserAccount,
   deletePost,
   deleteSavedPost,
+  follow,
+  getAllUserFollowers,
+  getAllUsers,
   getCurrentUser,
   getInfinitePosts,
   getPostById,
   getRecentPost,
+  getSavedPosts,
+  getUserByID,
   likePost,
   savePost,
   searchPosts,
+  searchUser,
   signInAccount,
   signOutAccount,
+  unFollow,
   updatePost,
+  updateUser,
 } from "../appwrite/api";
-import { INewUser, IUpdatePost } from "@/types";
+import { INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
-import { useAsyncValue } from "react-router-dom";
 
 export const useCreateUserAccountMutation = () => {
   return useMutation({
@@ -125,6 +132,7 @@ export const useDeleteSavedPost = () => {
     },
   });
 };
+
 export const useGetCurrentUser = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_CURRENT_USER],
@@ -174,7 +182,7 @@ export const useGetPosts = () => {
       }
 
       // Use the $id of the last document as the cursor.
-      const lastId = lastPage.documents[lastPage.documents.length - 1].$id;
+      const lastId = lastPage?.documents[lastPage.documents.length - 1].$id;
       return lastId;
     },
   });
@@ -185,5 +193,100 @@ export const useSearchPosts = (searchTarm: string) => {
     queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTarm],
     queryFn: () => searchPosts(searchTarm),
     enabled: !!searchTarm,
+  });
+};
+// not used
+export const useUserSavedPosts = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+    queryFn: getSavedPosts,
+  });
+};
+
+export const useGetUsers = () => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.GET_USERS],
+    queryFn: getAllUsers,
+    getNextPageParam: (lastPage) => {
+      // If there's no data, there are no more pages.
+      if (lastPage && lastPage.documents.length === 0) {
+        return null;
+      }
+
+      // Use the $id of the last document as the cursor.
+      const lastId = lastPage?.documents[lastPage.documents.length - 1].$id;
+      return lastId;
+    },
+  });
+};
+
+export const useGetUserById = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_BY_ID, userId],
+    queryFn: () => getUserByID(userId),
+    enabled: !!userId, // re faching  when tha data is chanched
+  });
+};
+
+export const useSearchUsers = (searchTarm: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_USERS, searchTarm],
+    queryFn: () => searchUser(searchTarm),
+    enabled: !!searchTarm,
+  });
+};
+
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      followedBy,
+      follower,
+    }: {
+      followedBy: string;
+      follower: string;
+    }) => follow({ followedBy, follower }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FOLLOW_USER, data?.$id], // some work baki a6a
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
+      });
+    },
+  });
+};
+
+export const useUserFollowers = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
+    queryFn: getAllUserFollowers,
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (user: IUpdateUser) => updateUser(user),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
+      });
+    },
+  });
+};
+
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unFollow(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
+      });
+    },
   });
 };
