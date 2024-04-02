@@ -17,7 +17,6 @@ import { Models } from "appwrite";
 import { postValidation } from "@/lib/validation";
 import {
   useCreatePostMutation,
-  useDeletePost,
   useUpdatePost,
 } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";

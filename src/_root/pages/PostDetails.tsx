@@ -8,6 +8,7 @@ import {
   useGetPostById,
 } from "@/lib/react-query/queriesAndMutations";
 import { formatDateString } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const PostDetails = () => {
@@ -15,7 +16,8 @@ const PostDetails = () => {
   const navigate = useNavigate();
   // react query
   const { data: post, isPending } = useGetPostById(id || "");
-  const { mutateAsync: deletePost, isPending: isDeletePost } = useDeletePost();
+  const { mutateAsync: deletePost, isPending: isDeleteingPost } =
+    useDeletePost();
 
   const { user } = useUserContext();
 
@@ -86,12 +88,16 @@ const PostDetails = () => {
                     onClick={handleDeletePost}
                     variant="ghost"
                     className="ghost_details-delete_btn">
-                    <img
-                      src="/assets/icons/delete.svg"
-                      height={24}
-                      width={24}
-                      alt="delete"
-                    />
+                    {isDeleteingPost ? (
+                      <Loader2 />
+                    ) : (
+                      <img
+                        src="/assets/icons/delete.svg"
+                        height={24}
+                        width={24}
+                        alt="delete"
+                      />
+                    )}
                   </Button>
                 </>
               ) : null}

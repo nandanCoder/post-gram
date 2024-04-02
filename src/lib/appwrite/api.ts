@@ -359,9 +359,9 @@ export async function deletePost(postId: string, imageId: string) {
 }
 // ifinite scroll
 
-export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
+export async function getInfinitePosts({ pageParam }: { pageParam: string }) {
   const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
-
+  console.log("this is page param", pageParam);
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam.toString()));
   }
@@ -414,8 +414,8 @@ export async function getSavedPosts() {
   }
 }
 
-export async function getAllUsers({ pageParam }: { pageParam: number }) {
-  const queries: any[] = [Query.limit(20)];
+export async function getAllUsers({ pageParam }: { pageParam: string }) {
+  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam.toString()));
   }

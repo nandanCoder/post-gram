@@ -1,20 +1,19 @@
 import { Models } from "appwrite";
 import Loader from "./Loader";
-import UserCard from "./UserCard";
 
 type SearchUserResultProps = {
   isSearchFetching: boolean;
-  searchedPosts: Models.Document[];
+  searchedUsers: Models.Document[];
 };
 const SearchUserResult = ({
   isSearchFetching,
-  searchedPosts,
+  searchedUsers,
 }: SearchUserResultProps) => {
   //console.log("post result final", searchedPosts);
   if (isSearchFetching) return <Loader />;
 
-  if (searchedPosts && searchedPosts.length > 0) {
-    return <UserCard user={searchedPosts} />;
+  if (searchedUsers && searchedUsers.length > 0) {
+    return; //<UserCard user={searchedUsers} />;
   }
   return (
     <p className="text-light-4 mt-10 text-center w-full">No results found</p>

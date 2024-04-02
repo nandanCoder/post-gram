@@ -16,7 +16,12 @@ const LeftSidebar = () => {
   const { mutate: signOut, isSuccess } = useSignOutAccountMutation();
   const navigate = useNavigate();
   useEffect(() => {
-    if (isSuccess) navigate(0);
+    if (isSuccess) {
+      navigate(0),
+        toast({
+          title: "signOut isSuccess",
+        });
+    }
   }, [isSuccess]);
 
   return (

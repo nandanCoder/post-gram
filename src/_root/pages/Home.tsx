@@ -3,11 +3,7 @@ import PostCard from "@/components/shared/PostCard";
 import { useGateRecentPost } from "@/lib/react-query/queriesAndMutations";
 
 const Home = () => {
-  const {
-    data: posts,
-    isPending: isPostLoading,
-    isError: isErrorPosts,
-  } = useGateRecentPost();
+  const { data: posts, isPending: isPostLoading } = useGateRecentPost();
   return (
     <div className="flex flex-1">
       <div className="home-container">

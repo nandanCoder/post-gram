@@ -175,6 +175,7 @@ export const useGetPosts = () => {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
     queryFn: getInfinitePosts,
+    initialPageParam: "",
     getNextPageParam: (lastPage) => {
       // If there's no data, there are no more pages.
       if (lastPage && lastPage.documents.length === 0) {
@@ -183,6 +184,8 @@ export const useGetPosts = () => {
 
       // Use the $id of the last document as the cursor.
       const lastId = lastPage?.documents[lastPage.documents.length - 1].$id;
+      console.log(":This the last id", lastId, typeof lastId);
+
       return lastId;
     },
   });
@@ -207,6 +210,7 @@ export const useGetUsers = () => {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.GET_USERS],
     queryFn: getAllUsers,
+    initialPageParam: "",
     getNextPageParam: (lastPage) => {
       // If there's no data, there are no more pages.
       if (lastPage && lastPage.documents.length === 0) {
