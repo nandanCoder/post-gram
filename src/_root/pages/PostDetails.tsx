@@ -16,8 +16,12 @@ const PostDetails = () => {
   const navigate = useNavigate();
   // react query
   const { data: post, isPending } = useGetPostById(id || "");
-  const { mutateAsync: deletePost, isPending: isDeleteingPost } =
-    useDeletePost();
+  const {
+    mutateAsync: deletePost,
+    isSuccess,
+    isError,
+    isPending: isDeleteingPost,
+  } = useDeletePost();
 
   const { user } = useUserContext();
 
@@ -27,9 +31,16 @@ const PostDetails = () => {
       postId: post?.$id || "",
       imageId: post?.imageId,
     });
-    toast({
-      title: "Post deleted successfully",
-    });
+    if (isSuccess) {
+      toast({
+        title: "Post deleted successfully",
+      });
+    }
+    if (isError) {
+      toast({
+        title: "Somthing gates wrong",
+      });
+    }
     navigate(-1);
   };
   // console.log(user.id == post?.creator);
