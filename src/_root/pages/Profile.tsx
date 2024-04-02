@@ -44,7 +44,7 @@ const Profile = () => {
   //! follower count ok
   const followUserRecord = userFollowers?.documents.find(
     (record: Models.Document) =>
-      record.followedBy === user.id && record.follower.accountId === id
+      record.followedBy === user.id && record.follower.$id === id
   );
   const followeing = userFollowers?.documents.filter(
     (item) => item.followedBy === id
@@ -53,18 +53,19 @@ const Profile = () => {
   //console.log("followeing", followeing);
 
   const followers = userFollowers?.documents.filter(
-    (item) => item.follower.accountId === id
+    (item) => item.follower.$id === id
   );
-  //console.log("followers", followers);
+  console.log("followers", followers);
   //console.log("Chak", followeing?.length);
 
   //console.log("Follow rcoard", followUserRecord);
-  console.log("folow record!!", followUserRecord);
+  //console.log("folow record!!", followUserRecord);
   useEffect(() => {
-    console.log("Hisar");
+    //console.log("Hisar");
     setIsFollow(!!followUserRecord);
   }, [followUserRecord]);
-  console.log("check", isFollow);
+  // console.log("check follow status", isFollow);
+  //console.log("hii", followUserRecord);
   const handaleFollowUser = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isFollow) {
@@ -142,7 +143,7 @@ const Profile = () => {
                 {isLoadingFollow || isLoadingUnfollow ? (
                   <Loader />
                 ) : isFollow ? (
-                  "Following"
+                  "Unfollow"
                 ) : (
                   "Follow"
                 )}
@@ -188,6 +189,7 @@ const Profile = () => {
           index
           element={<GridPostList posts={currentUser.posts} showUser={false} />}
         />
+        {/* {currentUser.posts.length === 0 && "No post sheard this user"} */}
         {currentUser.$id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />
         )}

@@ -36,8 +36,11 @@ const SigninForm = () => {
 
   // Queries
 
-  const { mutateAsync: signInAccount, isPending: isSigningInUser } =
-    useSignInAccountMutation();
+  const {
+    mutateAsync: signInAccount,
+    isError,
+    isPending: isSigningInUser,
+  } = useSignInAccountMutation();
 
   // Handler
   const handleSignIn = async (user: z.infer<typeof signinValidation>) => {
@@ -58,6 +61,10 @@ const SigninForm = () => {
         navigate("/sign-in");
 
         return;
+      }
+
+      if (isError) {
+        toast({ title: "Something went wrong. Please try again." });
       }
 
       const isLoggedIn = await checkAuthUser();
