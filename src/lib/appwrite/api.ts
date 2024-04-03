@@ -361,7 +361,7 @@ export async function deletePost(postId: string, imageId: string) {
 
 export async function getInfinitePosts({ pageParam }: { pageParam: string }) {
   const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
-  console.log("this is page param", pageParam);
+  // console.log("this is page param", pageParam);
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam.toString()));
   }
@@ -415,7 +415,8 @@ export async function getSavedPosts() {
 }
 
 export async function getAllUsers({ pageParam }: { pageParam: string }) {
-  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
+  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(6)];
+  console.log("user page param", pageParam);
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam.toString()));
   }
@@ -426,6 +427,7 @@ export async function getAllUsers({ pageParam }: { pageParam: string }) {
       queries
     );
     if (!allUser) throw Error;
+    console.log("user,", allUser);
     return allUser;
   } catch (error) {
     console.log(error);

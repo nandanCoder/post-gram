@@ -2,7 +2,8 @@ import Loader from "@/components/shared/Loader";
 import UserCard from "@/components/shared/UserCard";
 import { useToast } from "@/components/ui/use-toast";
 import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
-import { Models } from "appwrite";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
 const AllUsers = () => {
   const { toast } = useToast();
@@ -10,7 +11,11 @@ const AllUsers = () => {
     data: creators,
     isPending: isLoadingCreators,
     isError: isErrorCreator,
+    hasNextPage,
+    fetchNextPage,
   } = useGetUsers();
+  const { ref, inView } = useInView();
+  console.log("data", creators);
   // const { data: searchedUser, isPending: isLoadingCreator } =
   //   useSearchUsers(searchValue);
 
@@ -19,6 +24,11 @@ const AllUsers = () => {
     toast({ title: "Something went wrong." });
     return;
   }
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [inView]);
 
   if (!creators) {
     return (
@@ -40,14 +50,27 @@ const AllUsers = () => {
           <Loader />
         ) : (
           <ul className="user-grid">
-            {creators.pages[0]?.documents.map((creator: Models.Document) => (
-              <li key={creator?.$id} className="flex-1 min-w-[200px] w-full  ">
-                <UserCard user={creator} />
-              </li>
-            ))}
+            {creators.pages.map((creator, index) => {
+              if (creator) {
+                return (
+                  <li
+                    key={`page-${index}`}
+                    className="flex-1 min-w-[200px] w-full  ">
+                    <UserCard users={creator.documents} />
+                  </li>
+                );
+              } else {
+                return null;
+              }
+            })}
           </ul>
         )}
       </div>
+      {hasNextPage && (
+        <div ref={ref} className="mt-10">
+          <Loader />
+        </div>
+      )}
     </div>
   );
 };
