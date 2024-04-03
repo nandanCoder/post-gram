@@ -1,20 +1,24 @@
 import { Models } from "appwrite";
 import Loader from "./Loader";
 import GridPostList from "./GridPostList";
+import UserCard from "./UserCard";
 
 type SearchResultsProps = {
   isSearchFetching: boolean;
-  searchedPosts: Models.Document[];
+  searchedResults: Models.Document[];
+  resultType: string;
 };
 const SearchResult = ({
   isSearchFetching,
-  searchedPosts,
+  searchedResults,
+  resultType,
 }: SearchResultsProps) => {
   //console.log("post result final", searchedPosts);
   if (isSearchFetching) return <Loader />;
 
-  if (searchedPosts && searchedPosts.length > 0) {
-    return <GridPostList posts={searchedPosts} />;
+  if (searchedResults && searchedResults.length > 0) {
+    if (resultType === "POST") return <GridPostList posts={searchedResults} />;
+    return <UserCard users={searchedResults} />;
   }
   return (
     <p className="text-light-4 mt-10 text-center w-full">No results found</p>

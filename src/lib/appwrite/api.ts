@@ -439,10 +439,10 @@ export async function searchUser(searchTerm: string) {
     const searchdUser = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.search("username", searchTerm)]
+      [Query.search("name", searchTerm)]
     );
     if (!searchdUser) throw Error;
-    return searchdUser;
+    return searchdUser.documents;
   } catch (error) {
     console.log(error);
   }

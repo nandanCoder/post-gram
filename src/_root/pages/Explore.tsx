@@ -84,8 +84,9 @@ const Explore = () => {
         {shouldShowSearchResults ? (
           searchdPosts ? (
             <SearchResult
+              resultType="POST"
               isSearchFetching={isSearchFetching}
-              searchedPosts={searchdPosts}
+              searchedResults={searchdPosts}
             />
           ) : (
             <Loader />
