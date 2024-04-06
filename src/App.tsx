@@ -17,6 +17,7 @@ import {
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import Followeing from "./_root/pages/Followeing";
+import Followers from "./_root/pages/Followers";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/update-profile/:id" element={<UpdateProfile />} />
           <Route path="/followeing/:userId" element={<Followeing />} />
+          <Route path="/followers/:userId" element={<Followers />} />
         </Route>
       </Routes>
       <Toaster />

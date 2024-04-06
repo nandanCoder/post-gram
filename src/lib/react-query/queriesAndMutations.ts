@@ -19,6 +19,7 @@ import {
   getSavedPosts,
   getUserByID,
   getUserFolloweingList,
+  getUserFollowersList,
   likePost,
   savePost,
   searchPosts,
@@ -307,5 +308,11 @@ export const useGetUserFolloweingList = (userId: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_FOLLOWING_LIST, userId],
     queryFn: () => getUserFolloweingList({ userId }),
+  });
+};
+export const useGetUserFollowersList = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_FOLLOWING_LIST, userId],
+    queryFn: () => getUserFollowersList({ userId }),
   });
 };

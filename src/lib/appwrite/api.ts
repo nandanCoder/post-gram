@@ -586,3 +586,22 @@ export async function getUserFolloweingList({ userId }: { userId: string }) {
     );
   }
 }
+export async function getUserFollowersList({ userId }: { userId: string }) {
+  const query = [Query.equal("follower", userId)];
+  try {
+    const followeingList = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followerCollectionId,
+      query
+    );
+    if (!followeingList) {
+      throw new Error();
+    }
+    return followeingList;
+  } catch (error: any) {
+    console.log(
+      "Somthing gate wrong in get user following list",
+      error.message
+    );
+  }
+}

@@ -1,24 +1,23 @@
 import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { useGetUserFolloweingList } from "@/lib/react-query/queriesAndMutations";
+import { toast } from "@/components/ui/use-toast";
+import { useGetUserFollowersList } from "@/lib/react-query/queriesAndMutations";
 import { Link, useParams } from "react-router-dom";
 
-function Followeing() {
+function Followers() {
   const { userId } = useParams();
-  const { toast } = useToast();
-  const {
-    data: userFolloweing,
-    isPending: isLoading,
-    isError,
-  } = useGetUserFolloweingList(userId || "");
-  console.log(userFolloweing, isLoading);
 
+  const {
+    data: userFollowers,
+    isLoading,
+    isError,
+  } = useGetUserFollowersList(userId || "");
+  console.log("DAta", userFollowers);
   if (isError) {
     toast({ title: "Something went wrong." });
     return;
   }
-  if (userFolloweing?.total === 0) {
+  if (userFollowers?.total === 0) {
     return (
       <h2 className="h3-bold md:h2-bold text-center p-7 w-full">
         No Followeing
@@ -29,19 +28,19 @@ function Followeing() {
     <div className="common-container">
       <div className="user-container">
         <h2 className="h3-bold md:h2-bold text-left w-full">All Followeing</h2>
-        {isLoading && !userFolloweing ? (
+        {isLoading && !userFollowers ? (
           <Loader />
         ) : (
           <ul className="user-grid">
-            {userFolloweing?.documents.map((user) => (
+            {userFollowers?.documents.map((user) => (
               <li key={user?.$id} className="flex-1 min-w-[200px] w-full  ">
                 {/* // user UserCard */}
                 <Link
-                  to={`/profile/${user.follower.$id}`}
+                  to={`/profile/${user.followedBy.$id}`}
                   className="user-card">
                   <img
                     src={
-                      user.follower.imageUrl ||
+                      user.followedBy.imageUrl ||
                       "/assets/icons/profile-placeholder.svg"
                     }
                     alt="creator"
@@ -50,10 +49,10 @@ function Followeing() {
 
                   <div className="flex-center flex-col gap-1">
                     <p className="base-medium text-light-1 text-center line-clamp-1">
-                      {user.follower.name}
+                      {user.followedBy.name}
                     </p>
                     <p className="small-regular text-light-3 text-center line-clamp-1">
-                      @{user.follower.username}
+                      @{user.followedBy.username}
                     </p>
                   </div>
 
@@ -73,4 +72,4 @@ function Followeing() {
   );
 }
 
-export default Followeing;
+export default Followers;
