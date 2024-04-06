@@ -12,14 +12,12 @@ import {
   useFollowUser,
   useGetUserById,
   useUnfollowUser,
-  useUserFollowers,
 } from "@/lib/react-query/queriesAndMutations";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/shared/Loader";
 import GridPostList from "@/components/shared/GridPostList";
 import LikedPosts from "./LikedPosts";
 import { useEffect, useState } from "react";
-import { Models } from "appwrite";
 interface StabBlockProps {
   value: string | number | any;
   label: string;
@@ -35,38 +33,39 @@ const Profile = () => {
   const { user } = useUserContext();
   const { pathname } = useLocation();
   const [isFollow, setIsFollow] = useState<boolean>(false);
-  const { data: currentUser } = useGetUserById(id || "");
+  const { data: currentUser, isLoading: isLoadingCurrentUser } = useGetUserById(
+    id || ""
+  );
   const { mutate: followUser, isPending: isLoadingFollow } = useFollowUser();
   //console.log("Current user ", currentUser);
-  const { data: userFollowers } = useUserFollowers();
+  //const { data: userFollowers } = useUserFollowers();
   const { mutate: unfollowUser, isPending: isLoadingUnfollow } =
     useUnfollowUser();
   //! follower count ok
-  const followUserRecord = userFollowers?.documents.find(
-    (record: Models.Document) =>
-      record.followedBy === user.id && record.follower.$id === id
+  // const followUserRecord = userFollowers?.documents.find(
+  //   (record: Models.Document) =>
+  //     record.followedBy === user.id && record.follower.$id === id
+  // );
+  // const followeing = userFollowers?.documents.filter(
+  //   (item) => item.followedBy === id
+  // );
+  const followUserRecord = currentUser?.follower.find(
+    (item: any) => item.followedBy.$id === user.id
   );
-  const followeing = userFollowers?.documents.filter(
-    (item) => item.followedBy === id
-  );
+  //console.log("c", followUserRecord);
+
+  //console.log("Curent user", currentUser);
   //const [userFolloweing, setUserFollowing] = useState<string[]>(followeing);
   //console.log("followeing", followeing);
 
-  const followers = userFollowers?.documents.filter(
-    (item) => item.follower.$id === id
-  );
+  // const followers = userFollowers?.documents.filter(
+  //   (item) => item.follower.$id === id
+  // );
 
-  console.log("followers", followers);
-  //console.log("Chak", followeing?.length);
-
-  //console.log("Follow rcoard", followUserRecord);
-  //console.log("folow record!!", followUserRecord);
   useEffect(() => {
-    //console.log("Hisar");
     setIsFollow(!!followUserRecord);
   }, [followUserRecord]);
-  // console.log("check follow status", isFollow);
-  //console.log("hii", followUserRecord);
+
   const handaleFollowUser = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isFollow) {
@@ -77,7 +76,7 @@ const Profile = () => {
     followUser({ follower: id || "", followedBy: user.id });
   };
 
-  if (!currentUser || !userFollowers)
+  if (!currentUser || isLoadingCurrentUser)
     return (
       <div className="flex-center w-full h-full">
         <Loader />
@@ -106,9 +105,15 @@ const Profile = () => {
 
             <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20">
               <StatBlock value={currentUser.posts.length} label="Posts" />
-              <StatBlock value={followers?.length} label="Followers" />
+              <StatBlock
+                value={currentUser.follower?.length}
+                label="Followers"
+              />
               <Link to={`/followeing/${currentUser.$id}`}>
-                <StatBlock value={followeing?.length} label="Following" />
+                <StatBlock
+                  value={currentUser.followeing?.length}
+                  label="Following"
+                />
               </Link>
             </div>
 
@@ -143,7 +148,9 @@ const Profile = () => {
                 className={
                   isFollow ? "shad-button_ghost" : "shad-button_primary px-8"
                 }>
-                {isLoadingFollow || isLoadingUnfollow ? (
+                {isLoadingFollow ||
+                isLoadingUnfollow ||
+                isLoadingCurrentUser ? (
                   <Loader />
                 ) : isFollow ? (
                   "Unfollow"
