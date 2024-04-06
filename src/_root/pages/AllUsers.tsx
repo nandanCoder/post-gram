@@ -83,7 +83,7 @@ const AllUsers = () => {
         {isLoadingCreators && !creators ? (
           <Loader />
         ) : (
-          <ul className="user-grid">
+          <ul className="user-gridall">
             {shouldShowSearchResults ? (
               searchedUser ? (
                 <SearchResult

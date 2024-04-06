@@ -9,7 +9,7 @@ type UserCardProps = {
 
 const UserCard = ({ users }: UserCardProps) => {
   return (
-    <ul className="grid-container">
+    <div className="user-grid">
       {users.map((user) => (
         <Link to={`/profile/${user.$id}`} key={user.$id} className="user-card">
           <img
@@ -32,7 +32,7 @@ const UserCard = ({ users }: UserCardProps) => {
           </Button>
         </Link>
       ))}
-    </ul>
+    </div>
   );
 };
 

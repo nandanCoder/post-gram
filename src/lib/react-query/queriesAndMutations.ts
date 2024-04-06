@@ -18,6 +18,7 @@ import {
   getRecentPost,
   getSavedPosts,
   getUserByID,
+  getUserFolloweingList,
   likePost,
   savePost,
   searchPosts,
@@ -293,5 +294,12 @@ export const useUnfollowUser = () => {
         queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
       });
     },
+  });
+};
+
+export const useGetUserFolloweingList = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_FOLLOWING_LIST, userId],
+    queryFn: () => getUserFolloweingList({ userId }),
   });
 };
